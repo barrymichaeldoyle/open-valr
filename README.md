@@ -24,7 +24,7 @@ for multiple programming languages.
 
 ---
 
-## ⚙️ Current Goal
+## Current Goal
 
 Build an OpenAPI specification for VALR's API to serve as the foundation for generating SDKs in multiple programming languages.
 
@@ -32,7 +32,7 @@ See [ROADMAP.md](./ROADMAP.md) for more details.
 
 ---
 
-## 🧰 Contributing
+## Contributing
 
 We welcome contributions! Please read
 [CONTRIBUTING.md](./CONTRIBUTING.md) to get started.
@@ -41,13 +41,13 @@ Have ideas or feedback? Start a discussion [here](https://github.com/barrymichae
 
 ---
 
-## 📜 License
+## License
 
 MIT © 2026 [Barry Michael Doyle](https://github.com/barrymichaeldoyle)
 
 ---
 
-### ❤️ Support This Project
+### Support This Project
 
 If you find **Open VALR** helpful and want to support it, you can:
 
