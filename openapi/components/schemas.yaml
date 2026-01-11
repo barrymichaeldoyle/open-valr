@@ -1,0 +1,77 @@
+components:
+  schemas:
+    ValrStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          description: VALR platform status
+          enum: [online, read-only]
+          example: online
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          example: INTERNAL_ERROR
+        message:
+          type: string
+          example: Unexpected error occurred
+    LeverageOption:
+      type: object
+      properties:
+        pairSymbol:
+          type: string
+          description: The symbol of the pair being queried
+          example: BTCUSDTPERP
+        leverageMultiple:
+          type: integer
+          description: The debt-to-equity ratio, which is also the inverse of margin fraction
+          example: 10
+        initialMarginFraction:
+          type: number
+          format: double
+          description: The initial margin fraction required to place an order
+          example: 0.1
+        maintenanceMarginFraction:
+          type: number
+          format: double
+          description: The maintenance margin fraction below which stage 1 liquidation is triggered
+          example: 0.05
+        autoCloseMarginFraction:
+          type: number
+          format: double
+          description: The account margin fraction below which an account's debt and assets are transferred to the insurance fund
+          example: 0.0083
+        riskLimitValue:
+          type: number
+          format: double
+          description: The maximum position size in the chosen leverage tier in riskLimitCurrency
+          example: 750000
+        riskLimitCurrency:
+          type: string
+          description: The currency symbol that the risk limit is specified in
+          example: USDT
+        isDefault:
+          type: boolean
+          description: When true this indicates that this leverage tier is the VALR default for this pair
+          example: true
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ServiceUnavailable:
+      description: VALR is in read-only mode
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"

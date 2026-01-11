@@ -1,0 +1,71 @@
+paths:
+  /v1/public/risklimit/{currencypair}:
+    get:
+      summary: Available Leverage Options
+      operationId: getAvailableLeverageOptions
+      tags:
+        - Public
+      description: >
+        Returns the available leverage options for a specified currency pair.
+        Each leverage option includes margin requirements, risk limits, and
+        whether it is the default leverage tier for the pair.
+      security: []
+      parameters:
+        - name: currencypair
+          in: path
+          required: true
+          description: Specify the currency pair for which you would like to view the available leverage options
+          schema:
+            type: string
+          example: ETHUSDTPERP
+      responses:
+        "200":
+          description: Successfully retrieved available leverage options
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "../components/schemas.yaml#/components/schemas/LeverageOption"
+              example:
+                - pairSymbol: BTCUSDTPERP
+                  leverageMultiple: 10
+                  initialMarginFraction: 0.1
+                  maintenanceMarginFraction: 0.05
+                  autoCloseMarginFraction: 0.0083
+                  riskLimitValue: 750000
+                  riskLimitCurrency: USDT
+                  isDefault: true
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
+  /v1/public/status:
+    get:
+      summary: VALR Status
+      operationId: getValrStatus
+      tags:
+        - Public
+      description: >
+        Returns the current operational status of the VALR exchange.
+        The status may be:
+        - **online** – all functionality available
+        - **read-only** – only GET and OPTIONS requests are accepted
+
+        When VALR is in read-only mode, all POST and DELETE endpoints
+        will respond with a 503 Service Unavailable status.
+      security: []
+      responses:
+        "200":
+          description: Successfully retrieved VALR platform status
+          content:
+            application/json:
+              schema:
+                $ref: "../components/schemas.yaml#/components/schemas/ValrStatus"
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "503":
+          $ref: "../components/schemas.yaml#/components/responses/ServiceUnavailable"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"

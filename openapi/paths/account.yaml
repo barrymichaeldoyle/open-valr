@@ -1,0 +1,10 @@
+paths:
+  # Account API endpoints will be added here
+  # Example:
+  # /v1/account/balances:
+  #   get:
+  #     summary: Get account balances
+  #     operationId: getAccountBalances
+  #     tags:
+  #       - Account
+  #     ...
