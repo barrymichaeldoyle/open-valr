@@ -1,0 +1,84 @@
+openapi: 3.0.3
+info:
+  title: VALR Exchange API
+  version: 0.1.0
+  description: |
+    An unofficial, community-maintained OpenAPI specification for the
+    [VALR cryptocurrency exchange API](https://www.valr.com/).
+
+    This specification serves as the foundation for auto-generated
+    SDKs in multiple programming languages as part of the **Open VALR**
+    open source project.
+
+  termsOfService: https://www.valr.com/
+  contact:
+    name: Open VALR Contributors
+    url: https://github.com/barrymichaeldoyle/open-valr
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.valr.com
+    description: VALR Production API
+
+paths:
+  /v1/public/status:
+    get:
+      summary: Get VALR platform status
+      operationId: getValrStatus
+      tags:
+        - Public
+      description: >
+        Returns the current operational status of the VALR exchange.
+        The status may be:
+        - **online** – all functionality available
+        - **read-only** – only GET and OPTIONS requests are accepted
+
+        When VALR is in read-only mode, all POST and DELETE endpoints
+        will respond with a 503 Service Unavailable status.
+      security: []
+      responses:
+        "200":
+          description: Successfully retrieved VALR platform status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValrStatus"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: VALR is in read-only mode
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    ValrStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          description: VALR platform status
+          enum: [online, read-only]
+          example: online
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          example: INTERNAL_ERROR
+        message:
+          type: string
+          example: Unexpected error occurred

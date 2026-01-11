@@ -1,0 +1,21 @@
+{
+  "name": "open-valr",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "validate": "openapi validate openapi/valr.yaml",
+    "preview": "openapi preview-docs openapi/valr.yaml",
+    "swagger": "http-server openapi -p 8081",
+    "proxy": "node tools/proxy.cjs",
+    "dev": "concurrently \"pnpm run proxy\" \"pnpm run preview\" \"pnpm run swagger\""
+  },
+  "devDependencies": {
+    "@redocly/openapi-cli": "1.0.0-beta.95",
+    "concurrently": "^9.2.1",
+    "express": "^5.2.1",
+    "http-proxy": "^1.18.1",
+    "http-proxy-middleware": "^3.0.5",
+    "http-server": "^14.1.1",
+    "swagger-ui-dist": "^5.31.0"
+  }
+}

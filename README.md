@@ -17,10 +17,10 @@ for multiple programming languages.
 
 ## 📚 Table of Contents
 
-- [Current Goal](#-current-goal)
-- [Contributing](#-contributing)
-- [License](#-license)
-- [Support This Project](#️-support-this-project)
+- [Current Goal](#current-goal)
+- [Contributing](#contributing)
+- [License](#license)
+- [Support This Project](#️support-this-project)
 
 ---
 
