@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["package.json"],
+  "ignore": [
+    "clients/**",
+    "openapi/**",
+    "**/*.md",
+    "**/*.yaml",
+    "**/*.yml",
+    ".vscode/**"
+  ]
+}

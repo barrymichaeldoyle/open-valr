@@ -12,8 +12,9 @@ info:
 
   termsOfService: https://www.valr.com/
   contact:
-    name: Open VALR Contributors
+    name: Barry Michael Doyle
     url: https://github.com/barrymichaeldoyle/open-valr
+    email: barry@barrymichaeldoyle.com
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
@@ -22,16 +23,20 @@ servers:
   - url: https://api.valr.com
     description: VALR Production API
 
+tags:
+  - name: Public
+    description: Public API endpoints that do not require authentication
+
 paths:
   # Public APIs
   /v1/public/risklimit/{currencypair}: # Available Leverage Options
     $ref: "./paths/public.yaml#/paths/~1v1~1public~1risklimit~1{currencypair}"
-  /v1/public/status: # VALR Status
-    $ref: "./paths/public.yaml#/paths/~1v1~1public~1status"
   /v1/public/currencies: # Currencies
     $ref: "./paths/public.yaml#/paths/~1v1~1public~1currencies"
   /v1/public/pairs: # Currency Pairs
     $ref: "./paths/public.yaml#/paths/~1v1~1public~1pairs"
+  /v1/public/status: # VALR Status
+    $ref: "./paths/public.yaml#/paths/~1v1~1public~1status"
 
 components:
   schemas:

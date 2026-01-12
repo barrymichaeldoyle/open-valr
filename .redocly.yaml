@@ -1,0 +1,8 @@
+lint:
+  extends:
+    - recommended
+  rules:
+    # Suppress false positives - schemas ARE used via external $ref
+    no-unused-schemas: off
+    # Suppress false positive - operation-2xx-response incorrectly flags components.responses
+    operation-2xx-response: off

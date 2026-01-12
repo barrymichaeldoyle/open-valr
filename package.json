@@ -7,14 +7,16 @@
     "preview": "openapi preview-docs openapi/valr.yaml",
     "swagger": "http-server openapi -p 8081",
     "proxy": "node tools/proxy.cjs",
-    "dev": "concurrently \"pnpm run proxy\" \"pnpm run preview\" \"pnpm run swagger\""
+    "dev": "concurrently \"pnpm run proxy\" \"pnpm run preview\" \"pnpm run swagger\"",
+    "knip": "knip"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1",
-    "express": "^5.2.1",
-    "http-proxy": "^1.18.1",
-    "http-proxy-middleware": "^3.0.5",
-    "http-server": "^14.1.1",
-    "swagger-ui-dist": "^5.31.0"
+    "@redocly/cli": "^2.14.4",
+    "@types/node": "25.0.6",
+    "concurrently": "9.2.1",
+    "http-proxy": "1.18.1",
+    "http-server": "14.1.1",
+    "knip": "5.80.2",
+    "typescript": "5.9.3"
   }
 }
