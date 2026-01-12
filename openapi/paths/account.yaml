@@ -1,10 +1,336 @@
 paths:
-  # Account API endpoints will be added here
-  # Example:
-  # /v1/account/balances:
-  #   get:
-  #     summary: Get account balances
-  #     operationId: getAccountBalances
-  #     tags:
-  #       - Account
-  #     ...
+  /v1/account/api-keys/current:
+    get:
+      summary: Current API Key Info
+      operationId: getCurrentApiKeyInfo
+      tags:
+        - Account
+      description: >
+        Returns the current API Key's information and permissions. This information includes
+        the label, date created, and permissions. Permission levels are View Access, Trade,
+        or Withdraw. If an API key has Whitelisted IP address ranges or Whitelisted Withdrawal
+        addresses, the IP addresses and Currency withdrawal addresses will also be returned.
+      security:
+        - ValrApiKey: []
+      parameters:
+        - name: X-VALR-API-KEY
+          in: header
+          required: true
+          description: Your API Key
+          schema:
+            type: string
+          example: b9fb68df5485639d03c3171cf6e49b89e52fd78d5c313819b9c592b59c689f33
+        - name: X-VALR-SIGNATURE
+          in: header
+          required: true
+          description: Request Signature generated for this request. See section about Authentication above to learn how to generate this request signature.
+          schema:
+            type: string
+          example: "{{requestSignature}}"
+        - name: X-VALR-TIMESTAMP
+          in: header
+          required: true
+          description: >
+            The same timestamp used to generate the request signature (in Unix epoch time format, in milliseconds).
+            Example: If the current date and time is December 28, 2019 00:00:00 UTC, then the Unix epoch time would be 1577491200000.
+            Note that this timestamp is in milliseconds.
+          schema:
+            type: integer
+            format: int64
+          example: 1577491200000
+      responses:
+        "200":
+          description: Successfully retrieved current API key information
+          content:
+            application/json:
+              schema:
+                $ref: "../components/schemas.yaml#/components/schemas/ApiKeyInfo"
+              example:
+                label: "Full Access Whitelisted IP and Address"
+                permissions:
+                  - "View access"
+                  - "Trade"
+                  - "Withdraw"
+                addedAt: "2021-09-11T18:28:37.791401Z"
+                allowedIpAddressCidr: "41.157.66.231/32"
+                allowedWithdrawAddressList:
+                  - currency: BTC
+                    address: "2N1QAxqSn2B3CiHsLSzeReuysQXyCT8ZXWj"
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "401":
+          description: Unauthorized - Invalid API key or signature
+          content:
+            application/json:
+              schema:
+                $ref: "../components/schemas.yaml#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
+  /v1/account/subaccount/{id}:
+    get:
+      summary: Subaccount
+      operationId: getSubaccount
+      tags:
+        - Account
+      description: >
+        Returns the subaccount and its KYC info, if available, for the provided id path variable.
+        
+        **Note:** An API key created on the main (primary) account can impersonate a subaccount by
+        including the header X-VALR-SUB-ACCOUNT-ID and specifying the subaccount id, as well as
+        adding the id to request signature. This allows the primary account to transact on behalf
+        of the impersonated subaccount. Please see the Authentication section for more details.
+        
+        The sensitive subaccount KYC data is encrypted at rest.
+      security:
+        - ValrApiKey: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the subaccount
+          schema:
+            type: string
+          example: "903671169785507840"
+        - name: X-VALR-API-KEY
+          in: header
+          required: true
+          description: Your API Key
+          schema:
+            type: string
+          example: b9fb68df5485639d03c3171cf6e49b89e52fd78d5c313819b9c592b59c689f33
+        - name: X-VALR-SIGNATURE
+          in: header
+          required: true
+          description: Request Signature generated for this request. See section about Authentication above to learn how to generate this request signature.
+          schema:
+            type: string
+          example: "{{requestSignature}}"
+        - name: X-VALR-TIMESTAMP
+          in: header
+          required: true
+          description: >
+            The same timestamp used to generate the request signature (in Unix epoch time format, in milliseconds).
+            Example: If the current date and time is December 28, 2019 00:00:00 UTC, then the Unix epoch time would be 1577491200000.
+            Note that this timestamp is in milliseconds.
+          schema:
+            type: integer
+            format: int64
+          example: 1577491200000
+        - name: X-VALR-SUB-ACCOUNT-ID
+          in: header
+          required: false
+          description: >
+            Optional. The subaccount id to impersonate. An API key created on the main (primary) account
+            can impersonate a subaccount by including this header and specifying the subaccount id, as well
+            as adding the id to request signature. This allows the primary account to transact on behalf
+            of the impersonated subaccount.
+          schema:
+            type: string
+          example: "903671169785507840"
+      responses:
+        "200":
+          description: Successfully retrieved subaccount information
+          content:
+            application/json:
+              schema:
+                $ref: "../components/schemas.yaml#/components/schemas/Subaccount"
+              example:
+                id: "903671169785507840"
+                label: "SubAccountWithKyc"
+                firstName: "John"
+                lastName: "Doe"
+                dateOfBirth: "1985-06-15"
+                residentialCountry: "ZA"
+                identityIssuingCountry: "ZA"
+                identityType: "PASSPORT"
+                identityNumber: "A123456789"
+                identityExpiryDate: "2030-12-31"
+                cellNumber: "+12345678901234"
+                email: "johndoe@example.com"
+                purpose: "TRADING"
+                employmentStatus: "EMPLOYED_FULL_TIME"
+                sourceOfFunds: "ALLOWANCE"
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "401":
+          description: Unauthorized - Invalid API key or signature
+          content:
+            application/json:
+              schema:
+                $ref: "../components/schemas.yaml#/components/schemas/ErrorResponse"
+        "404":
+          description: Subaccount not found
+          content:
+            application/json:
+              schema:
+                $ref: "../components/schemas.yaml#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
+  /v1/account/subaccounts:
+    get:
+      summary: Retrieve Subaccounts
+      operationId: getSubaccounts
+      tags:
+        - Account
+      description: >
+        Returns the list of all subaccounts that belong to a primary account, with each subaccount's label and id.
+        
+        Can only be called by a primary account API key.
+      security:
+        - ValrApiKey: []
+      parameters:
+        - name: X-VALR-API-KEY
+          in: header
+          required: true
+          description: Your API Key
+          schema:
+            type: string
+          example: b9fb68df5485639d03c3171cf6e49b89e52fd78d5c313819b9c592b59c689f33
+        - name: X-VALR-SIGNATURE
+          in: header
+          required: true
+          description: Request Signature generated for this request. See section about Authentication above to learn how to generate this request signature.
+          schema:
+            type: string
+          example: "{{requestSignature}}"
+        - name: X-VALR-TIMESTAMP
+          in: header
+          required: true
+          description: >
+            The same timestamp used to generate the request signature (in Unix epoch time format, in milliseconds).
+            Example: If the current date and time is December 28, 2019 00:00:00 UTC, then the Unix epoch time would be 1577491200000.
+            Note that this timestamp is in milliseconds.
+          schema:
+            type: integer
+            format: int64
+          example: 1577491200000
+      responses:
+        "200":
+          description: Successfully retrieved list of subaccounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "../components/schemas.yaml#/components/schemas/SubaccountSummary"
+              example:
+                - label: "Arbitrage Acc 001"
+                  id: "903671169785507840"
+                - label: "Another Test Arbitrage Acc From API"
+                  id: "903670867401564160"
+                - label: "Test Trade Acc From API"
+                  id: "903267690654658560"
+                - label: "Test Arbitrage Acc From API"
+                  id: "903260643187945472"
+                - label: "Trading"
+                  id: "902529770612256768"
+                - label: "Primary"
+                  id: "0"
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "401":
+          description: Unauthorized - Invalid API key or signature, or not a primary account API key
+          content:
+            application/json:
+              schema:
+                $ref: "../components/schemas.yaml#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
+  /v1/account/balances/all:
+    get:
+      summary: All Non Zero Balances
+      operationId: getAllNonZeroBalances
+      tags:
+        - Account
+      description: >
+        Returns the entire portfolio's balances that are greater than 0, grouped by account for the primary account and its subaccounts.
+        Accounts with neither balance nor debt will be returned with an empty array.
+        
+        Can only be called using a primary account API key.
+      security:
+        - ValrApiKey: []
+      parameters:
+        - name: X-VALR-API-KEY
+          in: header
+          required: true
+          description: Your API Key
+          schema:
+            type: string
+          example: b9fb68df5485639d03c3171cf6e49b89e52fd78d5c313819b9c592b59c689f33
+        - name: X-VALR-SIGNATURE
+          in: header
+          required: true
+          description: Request Signature generated for this request. See section about Authentication above to learn how to generate this request signature.
+          schema:
+            type: string
+          example: "{{requestSignature}}"
+        - name: X-VALR-TIMESTAMP
+          in: header
+          required: true
+          description: >
+            The same timestamp used to generate the request signature (in Unix epoch time format, in milliseconds).
+            Example: If the current date and time is December 28, 2019 00:00:00 UTC, then the Unix epoch time would be 1577491200000.
+            Note that this timestamp is in milliseconds.
+          schema:
+            type: integer
+            format: int64
+          example: 1577491200000
+      responses:
+        "200":
+          description: Successfully retrieved all non-zero balances
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "../components/schemas.yaml#/components/schemas/AccountBalances"
+              example:
+                - account:
+                    label: "ox"
+                    id: "1385226517613019136"
+                  balances:
+                    - currency: "ZAR"
+                      available: "0"
+                      reserved: "0"
+                      total: "15"
+                      updatedAt: "2025-07-01T10:46:29.408Z"
+                      lendReserved: "0"
+                      borrowReserved: "15"
+                      borrowedAmount: "0"
+                - account:
+                    label: "API key test"
+                    id: "1385148772766830592"
+                  balances: []
+                - account:
+                    label: "Primary"
+                    id: "0"
+                  balances:
+                    - currency: "ZAR"
+                      available: "1265172.33437585412"
+                      reserved: "0"
+                      total: "1665172.33437585412"
+                      updatedAt: "2025-07-01T14:14:37.218Z"
+                      lendReserved: "400000"
+                      borrowReserved: "0"
+                      borrowedAmount: "0"
+                    - currency: "USDC"
+                      available: "83241.870104015439"
+                      reserved: "5.5"
+                      total: "83247.370104015439"
+                      updatedAt: "2025-07-03T07:19:01.245Z"
+                      lendReserved: "0"
+                      borrowReserved: "0"
+                      borrowedAmount: "0"
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "401":
+          description: Unauthorized - Invalid API key or signature, or not a primary account API key
+          content:
+            application/json:
+              schema:
+                $ref: "../components/schemas.yaml#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"

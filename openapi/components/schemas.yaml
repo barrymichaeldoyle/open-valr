@@ -568,6 +568,233 @@ components:
             - SIMPLE
             - STOP_LOSS_LIMIT
             - TAKE_PROFIT_LIMIT
+    AllowedWithdrawAddress:
+      type: object
+      properties:
+        currency:
+          type: string
+          description: The currency symbol
+          example: BTC
+        address:
+          type: string
+          description: The withdrawal address for the currency
+          example: "2N1QAxqSn2B3CiHsLSzeReuysQXyCT8ZXWj"
+      required:
+        - currency
+        - address
+    ApiKeyInfo:
+      type: object
+      properties:
+        label:
+          type: string
+          description: The label/name of the API key
+          example: "Full Access Whitelisted IP and Address"
+        permissions:
+          type: array
+          description: List of permissions granted to this API key
+          items:
+            type: string
+            enum: ["View access", "Trade", "Withdraw"]
+          example:
+            - "View access"
+            - "Trade"
+            - "Withdraw"
+        addedAt:
+          type: string
+          format: date-time
+          description: The date and time when the API key was created
+          example: "2021-09-11T18:28:37.791401Z"
+        allowedIpAddressCidr:
+          type: string
+          description: >
+            The whitelisted IP address range in CIDR notation.
+            Only present if IP whitelisting is configured for this API key.
+          example: "41.157.66.231/32"
+        allowedWithdrawAddressList:
+          type: array
+          description: >
+            List of whitelisted withdrawal addresses by currency.
+            Only present if withdrawal address whitelisting is configured for this API key.
+          items:
+            $ref: "#/components/schemas/AllowedWithdrawAddress"
+          example:
+            - currency: BTC
+              address: "2N1QAxqSn2B3CiHsLSzeReuysQXyCT8ZXWj"
+      required:
+        - label
+        - permissions
+        - addedAt
+    Subaccount:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The id of the subaccount
+          example: "903671169785507840"
+        label:
+          type: string
+          description: The name given to the subaccount
+          example: "SubAccountWithKyc"
+        firstName:
+          type: string
+          description: The first name of the subaccount holder. Only present if KYC info is available.
+          example: "John"
+        lastName:
+          type: string
+          description: The last name of the subaccount holder. Only present if KYC info is available.
+          example: "Doe"
+        dateOfBirth:
+          type: string
+          format: date
+          description: The date of birth of the subaccount holder. Only present if KYC info is available.
+          example: "1985-06-15"
+        residentialCountry:
+          type: string
+          description: >
+            The residential country of the subaccount holder, which refers to the country where
+            the account holder currently resides. Only present if KYC info is available.
+          example: "ZA"
+        identityIssuingCountry:
+          type: string
+          description: >
+            The identity issuing country of the subaccount holder, which refers to the country as
+            verified by an official ID document (such as an ID card, driver's license, or passport).
+            Only present if KYC info is available.
+          example: "ZA"
+        identityType:
+          type: string
+          description: >
+            The identity type refers to the type of ID document used to verify the subaccount holder's identity.
+            Only present if KYC info is available.
+          enum: [PASSPORT, ID_CARD, DRIVERS_LICENSE]
+          example: "PASSPORT"
+        identityNumber:
+          type: string
+          description: >
+            The identity number of the subaccount holder. Only present if KYC info is available.
+            Note: The sensitive subaccount KYC data is encrypted at rest.
+          example: "A123456789"
+        identityExpiryDate:
+          type: string
+          format: date
+          description: >
+            The date on which the ID of the subaccount holder expires. Only present if KYC info is available.
+          example: "2030-12-31"
+        cellNumber:
+          type: string
+          description: The cell phone number of the subaccount holder. Only present if KYC info is available.
+          example: "+12345678901234"
+        email:
+          type: string
+          format: email
+          description: The email address of the subaccount holder. Only present if KYC info is available.
+          example: "johndoe@example.com"
+        purpose:
+          type: string
+          description: The purpose of the subaccount. Only present if KYC info is available.
+          enum: [TRADING, INVESTMENT, OTHER]
+          example: "TRADING"
+        employmentStatus:
+          type: string
+          description: The employment status of the subaccount holder. Only present if KYC info is available.
+          enum: [EMPLOYED_FULL_TIME, EMPLOYED_PART_TIME, SELF_EMPLOYED, UNEMPLOYED, STUDENT, RETIRED, OTHER]
+          example: "EMPLOYED_FULL_TIME"
+        sourceOfFunds:
+          type: string
+          description: The source of funds for the subaccount. Only present if KYC info is available.
+          enum: [ALLOWANCE, SALARY, BUSINESS_INCOME, INVESTMENT_INCOME, GIFT, INHERITANCE, OTHER]
+          example: "ALLOWANCE"
+      required:
+        - id
+        - label
+    SubaccountSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The id of the subaccount
+          example: "903671169785507840"
+        label:
+          type: string
+          description: The name given to the subaccount
+          example: "Arbitrage Acc 001"
+      required:
+        - id
+        - label
+    AccountBalance:
+      type: object
+      properties:
+        currency:
+          type: string
+          description: The currency symbol
+          example: "ZAR"
+        available:
+          type: string
+          description: The available balance (not reserved)
+          example: "1265172.33437585412"
+        reserved:
+          type: string
+          description: The reserved balance
+          example: "0"
+        total:
+          type: string
+          description: The total balance
+          example: "1665172.33437585412"
+        updatedAt:
+          type: string
+          format: date-time
+          description: The timestamp when the balance was last updated
+          example: "2025-07-01T14:14:37.218Z"
+        lendReserved:
+          type: string
+          description: The amount reserved for lending
+          example: "400000"
+        borrowReserved:
+          type: string
+          description: The amount reserved for borrowing
+          example: "0"
+        borrowedAmount:
+          type: string
+          description: The amount currently borrowed
+          example: "0"
+      required:
+        - currency
+        - available
+        - reserved
+        - total
+        - updatedAt
+        - lendReserved
+        - borrowReserved
+        - borrowedAmount
+    AccountBalances:
+      type: object
+      properties:
+        account:
+          type: object
+          description: The account information
+          properties:
+            label:
+              type: string
+              description: The name of the account
+              example: "Primary"
+            id:
+              type: string
+              description: The id of the account
+              example: "0"
+          required:
+            - label
+            - id
+        balances:
+          type: array
+          description: >
+            Array of balances for this account. Only balances greater than 0 are returned.
+            Accounts with neither balance nor debt will have an empty array.
+          items:
+            $ref: "#/components/schemas/AccountBalance"
+          example: []
+      required:
+        - account
+        - balances
   responses:
     BadRequest:
       description: Bad request

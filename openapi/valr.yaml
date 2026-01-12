@@ -26,6 +26,8 @@ servers:
 tags:
   - name: Public
     description: Public API endpoints that do not require authentication
+  - name: Account
+    description: Account API endpoints that require authentication
 
 paths:
   # Public APIs
@@ -65,6 +67,16 @@ paths:
     $ref: "./paths/public.yaml#/paths/~1v1~1public~1time"
   /v1/public/status: # VALR Status
     $ref: "./paths/public.yaml#/paths/~1v1~1public~1status"
+    
+  # Account APIs
+  /v1/account/api-keys/current: # Current API Key Info
+    $ref: "./paths/account.yaml#/paths/~1v1~1account~1api-keys~1current"
+  /v1/account/subaccount/{id}: # Subaccount
+    $ref: "./paths/account.yaml#/paths/~1v1~1account~1subaccount~1{id}"
+  /v1/account/subaccounts: # Retrieve Subaccounts
+    $ref: "./paths/account.yaml#/paths/~1v1~1account~1subaccounts"
+  /v1/account/balances/all: # All Non Zero Balances
+    $ref: "./paths/account.yaml#/paths/~1v1~1account~1balances~1all"
 
 components:
   schemas:
@@ -106,6 +118,29 @@ components:
       $ref: "./components/schemas.yaml#/components/schemas/OrderBookFullEntry"
     CurrencyPairOrderTypes:
       $ref: "./components/schemas.yaml#/components/schemas/CurrencyPairOrderTypes"
+    AllowedWithdrawAddress:
+      $ref: "./components/schemas.yaml#/components/schemas/AllowedWithdrawAddress"
+    ApiKeyInfo:
+      $ref: "./components/schemas.yaml#/components/schemas/ApiKeyInfo"
+    Subaccount:
+      $ref: "./components/schemas.yaml#/components/schemas/Subaccount"
+    SubaccountSummary:
+      $ref: "./components/schemas.yaml#/components/schemas/SubaccountSummary"
+    AccountBalance:
+      $ref: "./components/schemas.yaml#/components/schemas/AccountBalance"
+    AccountBalances:
+      $ref: "./components/schemas.yaml#/components/schemas/AccountBalances"
+  securitySchemes:
+    ValrApiKey:
+      type: apiKey
+      in: header
+      name: X-VALR-API-KEY
+      description: >
+        VALR API authentication requires three headers:
+        - X-VALR-API-KEY: Your API key
+        - X-VALR-SIGNATURE: Request signature generated for this request
+        - X-VALR-TIMESTAMP: Unix epoch timestamp in milliseconds used to generate the signature
+        See the VALR API documentation for details on how to generate the request signature.
   responses:
     BadRequest:
       $ref: "./components/schemas.yaml#/components/responses/BadRequest"
