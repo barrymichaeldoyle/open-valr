@@ -35,6 +35,34 @@ paths:
     $ref: "./paths/public.yaml#/paths/~1v1~1public~1currencies"
   /v1/public/pairs: # Currency Pairs
     $ref: "./paths/public.yaml#/paths/~1v1~1public~1pairs"
+  /v1/public/pairs/{type}: # Currency Pairs By Type
+    $ref: "./paths/public.yaml#/paths/~1v1~1public~1pairs~1{type}"
+  /v1/public/futures/funding/history: # Futures Funding Rate History
+    $ref: "./paths/public.yaml#/paths/~1v1~1public~1futures~1funding~1history"
+  /v1/public/futures/info: # Futures Information
+    $ref: "./paths/public.yaml#/paths/~1v1~1public~1futures~1info"
+  /v1/public/loans/info: # Loan Info
+    $ref: "./paths/public.yaml#/paths/~1v1~1public~1loans~1info"
+  /v1/public/{currencyPair}/buckets: # Price Buckets for a currency pair
+    $ref: "./paths/public.yaml#/paths/~1v1~1public~1{currencyPair}~1buckets"
+  /v1/public/{currencyPair}/markprice/buckets: # Mark Price Buckets for a currency pair
+    $ref: "./paths/public.yaml#/paths/~1v1~1public~1{currencyPair}~1markprice~1buckets"
+  /v1/public/ordertypes: # Order Types
+    $ref: "./paths/public.yaml#/paths/~1v1~1public~1ordertypes"
+  /v1/public/{currencyPair}/ordertypes: # Order Types for a currency pair
+    $ref: "./paths/public.yaml#/paths/~1v1~1public~1{currencyPair}~1ordertypes"
+  /v1/public/marketsummary: # Market Summary
+    $ref: "./paths/public.yaml#/paths/~1v1~1public~1marketsummary"
+  /v1/public/{currencyPair}/marketsummary: # Market Summary for a currency pair
+    $ref: "./paths/public.yaml#/paths/~1v1~1public~1{currencyPair}~1marketsummary"
+  /v1/public/{currencyPair}/trades: # Trade History
+    $ref: "./paths/public.yaml#/paths/~1v1~1public~1{currencyPair}~1trades"
+  /v1/public/{currencyPair}/orderbook: # Order Book
+    $ref: "./paths/public.yaml#/paths/~1v1~1public~1{currencyPair}~1orderbook"
+  /v1/public/{currencyPair}/orderbook/full: # Order Book (Non aggregated)
+    $ref: "./paths/public.yaml#/paths/~1v1~1public~1{currencyPair}~1orderbook~1full"
+  /v1/public/time: # Server Time
+    $ref: "./paths/public.yaml#/paths/~1v1~1public~1time"
   /v1/public/status: # VALR Status
     $ref: "./paths/public.yaml#/paths/~1v1~1public~1status"
 
@@ -42,6 +70,8 @@ components:
   schemas:
     ValrStatus:
       $ref: "./components/schemas.yaml#/components/schemas/ValrStatus"
+    ServerTime:
+      $ref: "./components/schemas.yaml#/components/schemas/ServerTime"
     ErrorResponse:
       $ref: "./components/schemas.yaml#/components/schemas/ErrorResponse"
     LeverageOption:
@@ -52,6 +82,30 @@ components:
       $ref: "./components/schemas.yaml#/components/schemas/SupportedNetwork"
     CurrencyPair:
       $ref: "./components/schemas.yaml#/components/schemas/CurrencyPair"
+    FundingRateHistory:
+      $ref: "./components/schemas.yaml#/components/schemas/FundingRateHistory"
+    FuturesInfo:
+      $ref: "./components/schemas.yaml#/components/schemas/FuturesInfo"
+    LoanInfo:
+      $ref: "./components/schemas.yaml#/components/schemas/LoanInfo"
+    MarkPriceBucket:
+      $ref: "./components/schemas.yaml#/components/schemas/MarkPriceBucket"
+    PriceBucket:
+      $ref: "./components/schemas.yaml#/components/schemas/PriceBucket"
+    MarketSummary:
+      $ref: "./components/schemas.yaml#/components/schemas/MarketSummary"
+    Trade:
+      $ref: "./components/schemas.yaml#/components/schemas/Trade"
+    OrderBook:
+      $ref: "./components/schemas.yaml#/components/schemas/OrderBook"
+    OrderBookEntry:
+      $ref: "./components/schemas.yaml#/components/schemas/OrderBookEntry"
+    OrderBookFull:
+      $ref: "./components/schemas.yaml#/components/schemas/OrderBookFull"
+    OrderBookFullEntry:
+      $ref: "./components/schemas.yaml#/components/schemas/OrderBookFullEntry"
+    CurrencyPairOrderTypes:
+      $ref: "./components/schemas.yaml#/components/schemas/CurrencyPairOrderTypes"
   responses:
     BadRequest:
       $ref: "./components/schemas.yaml#/components/responses/BadRequest"

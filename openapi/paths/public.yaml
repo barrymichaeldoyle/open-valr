@@ -70,6 +70,30 @@ paths:
         "500":
           $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
 
+  /v1/public/time:
+    get:
+      summary: Server Time
+      operationId: getServerTime
+      tags:
+        - Public
+      description: >
+        Get the server time. Please note: The server time is returned in seconds.
+      security: []
+      responses:
+        "200":
+          description: Successfully retrieved server time
+          content:
+            application/json:
+              schema:
+                $ref: "../components/schemas.yaml#/components/schemas/ServerTime"
+              example:
+                epochTime: 1750165361
+                time: "2025-06-17T13:02:41.280178906Z"
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
   /v1/public/currencies:
     get:
       summary: Currencies
@@ -198,6 +222,1084 @@ paths:
                   initialMarginFraction: "0.025"
                   maintenanceMarginFraction: "0.0125"
                   autoCloseMarginFraction: "0.0125"
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
+  /v1/public/pairs/{type}:
+    get:
+      summary: Currency Pairs By Type
+      operationId: getCurrencyPairsByType
+      tags:
+        - Public
+      description: Get a list of all the currency pairs supported by VALR, filtered by currency pair type.
+      security: []
+      parameters:
+        - name: type
+          in: path
+          required: true
+          description: Filter currency pairs by type
+          schema:
+            type: string
+            enum: [SPOT, FUTURE]
+          example: FUTURE
+      responses:
+        "200":
+          description: Successfully retrieved list of currency pairs by type
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "../components/schemas.yaml#/components/schemas/CurrencyPair"
+              example:
+                - symbol: ETHZAR
+                  baseCurrency: ETH
+                  quoteCurrency: ZAR
+                  shortName: ETH/ZAR
+                  active: true
+                  minBaseAmount: "0.0002"
+                  maxBaseAmount: "69.21"
+                  minQuoteAmount: "10"
+                  maxQuoteAmount: "5000000"
+                  tickSize: "1"
+                  baseDecimalPlaces: "8"
+                  marginTradingAllowed: true
+                  currencyPairType: SPOT
+                  initialMarginFraction: "0.2"
+                  maintenanceMarginFraction: "0.1"
+                  autoCloseMarginFraction: "0.033333333"
+                - symbol: BNBUSDC
+                  baseCurrency: BNB
+                  quoteCurrency: USDC
+                  shortName: BNB/USDC
+                  active: true
+                  minBaseAmount: "0.0008"
+                  maxBaseAmount: "80"
+                  minQuoteAmount: "0.52"
+                  maxQuoteAmount: "52000"
+                  tickSize: "0.1"
+                  baseDecimalPlaces: "4"
+                  marginTradingAllowed: false
+                  currencyPairType: SPOT
+                - symbol: SHIBUSDC
+                  baseCurrency: SHIB
+                  quoteCurrency: USDC
+                  shortName: SHIB/USDC
+                  active: true
+                  minBaseAmount: "44600"
+                  maxBaseAmount: "2750000000"
+                  minQuoteAmount: "0.59"
+                  maxQuoteAmount: "50000"
+                  tickSize: "0.00000001"
+                  baseDecimalPlaces: "0"
+                  marginTradingAllowed: false
+                  currencyPairType: SPOT
+                - symbol: LTCBTC
+                  baseCurrency: LTC
+                  quoteCurrency: BTC
+                  shortName: LTC/BTC
+                  active: false
+                  minBaseAmount: "0.0043"
+                  maxBaseAmount: "15.67"
+                  minQuoteAmount: "0.000016"
+                  maxQuoteAmount: "0.0512"
+                  tickSize: "0.000001"
+                  baseDecimalPlaces: "8"
+                  marginTradingAllowed: false
+                  currencyPairType: SPOT
+                - symbol: ADAETH
+                  baseCurrency: ADA
+                  quoteCurrency: ETH
+                  shortName: ADA/ETH
+                  active: false
+                  minBaseAmount: "3.5"
+                  maxBaseAmount: "3571.28"
+                  minQuoteAmount: "0.00022"
+                  maxQuoteAmount: "0.7576"
+                  tickSize: "0.000001"
+                  baseDecimalPlaces: "2"
+                  marginTradingAllowed: false
+                  currencyPairType: SPOT
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
+  /v1/public/futures/funding/history:
+    get:
+      summary: Futures Funding Rate History
+      operationId: getFuturesFundingRateHistory
+      tags:
+        - Public
+      description: >
+        Returns the funding rate history for the specified Futures pair.
+
+        The results of this request may be filtered by currencyPair, startTime and endTime.
+        The skip and limit parameters may be applied to paginate the filtered results.
+
+        **Filtering by currencyPair**
+
+        The currencyPair parameter may be used to filter the returned items by the name of the perpetual futures contract expressed as base, quote, PERP, e.g. BTCUSDTPERP.
+
+        **Filtering by startTime or endTime**
+
+        The startTime or endTime parameters may be used to filter the returned items by the funding rate period.
+        The parameters will be interpreted as being in the UTC time zone and must be supplied in the ISO 8601 format (2023-11-14T22:00:00.000Z).
+        These two parameters may be used together or separately. When startTime is used, funding rates that have been active since startTime are returned.
+        When endTime is used, funding rates that have been active up to and including endTime are returned.
+        When not specified, 30 days worth of funding rates are returned by default.
+      security: []
+      parameters:
+        - name: currencyPair
+          in: query
+          required: true
+          description: The name of the perpetual futures contract expressed as base, quote, PERP, e.g. BTCUSDTPERP
+          schema:
+            type: string
+          example: BTCUSDTPERP
+        - name: skip
+          in: query
+          required: false
+          description: Skip this number of items from the list
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          example: 0
+        - name: limit
+          in: query
+          required: false
+          description: >
+            Limit the number of items returned. Max: 100
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 100
+          example: 100
+        - name: startTime
+          in: query
+          required: false
+          description: Include only funding rates after this ISO 8601 start time
+          schema:
+            type: string
+            format: date-time
+          example: "2023-11-30T08:51:21.604113Z"
+        - name: endTime
+          in: query
+          required: false
+          description: Include only funding rates before this ISO 8601 end time
+          schema:
+            type: string
+            format: date-time
+          example: "2023-12-05T08:55:29.339000Z"
+      responses:
+        "200":
+          description: Successfully retrieved funding rate history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "../components/schemas.yaml#/components/schemas/FundingRateHistory"
+              example:
+                - currencyPair: BTCUSDTPERP
+                  fundingRate: "0.000277"
+                  fundingTime: "2025-07-16T11:00:00Z"
+                - currencyPair: BTCUSDTPERP
+                  fundingRate: "0.000313"
+                  fundingTime: "2025-07-16T10:00:00Z"
+                - currencyPair: BTCUSDTPERP
+                  fundingRate: "0.000343"
+                  fundingTime: "2025-07-16T09:00:00Z"
+                - currencyPair: BTCUSDTPERP
+                  fundingRate: "0.000368"
+                  fundingTime: "2025-07-16T08:00:00Z"
+                - currencyPair: BTCUSDTPERP
+                  fundingRate: "0.000387"
+                  fundingTime: "2025-07-16T07:00:00Z"
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
+  /v1/public/futures/info:
+    get:
+      summary: Futures Information
+      operationId: getFuturesInfo
+      tags:
+        - Public
+      description: Returns market information for the available futures trading pairs on the platform.
+      security: []
+      responses:
+        "200":
+          description: Successfully retrieved futures information
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "../components/schemas.yaml#/components/schemas/FuturesInfo"
+              example:
+                - currencyPair: BTCUSDTPERP
+                  estimatedFundingRate: "-0.000001"
+                  openInterest: "1.8401"
+                  nextFundingRun: 1750165200000
+                  nextPnlRun: 1750176000000
+                - currencyPair: ETHUSDTPERP
+                  estimatedFundingRate: "0.000072"
+                  openInterest: "69.857"
+                  nextFundingRun: 1750165200000
+                  nextPnlRun: 1750176000000
+                - currencyPair: USDTZARPERP
+                  estimatedFundingRate: "0.000008"
+                  openInterest: "28038.5"
+                  nextFundingRun: 1750165200000
+                  nextPnlRun: 1750176000000
+                - currencyPair: XRPUSDTPERP
+                  estimatedFundingRate: "0.000017"
+                  openInterest: "68587"
+                  nextFundingRun: 1750165200000
+                  nextPnlRun: 1750176000000
+                - currencyPair: DOGEUSDTPERP
+                  estimatedFundingRate: "-0.000012"
+                  openInterest: "476792"
+                  nextFundingRun: 1750165200000
+                  nextPnlRun: 1750176000000
+                - currencyPair: SOLUSDTPERP
+                  estimatedFundingRate: "0.000003"
+                  openInterest: "1737.91"
+                  nextFundingRun: 1750165200000
+                  nextPnlRun: 1750176000000
+                - currencyPair: AVAXUSDTPERP
+                  estimatedFundingRate: "-0.000005"
+                  openInterest: "838.54"
+                  nextFundingRun: 1750165200000
+                  nextPnlRun: 1750176000000
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
+  /v1/public/loans/info:
+    get:
+      summary: Loan Info
+      operationId: getLoanInfo
+      tags:
+        - Public
+      description: Returns minimum and maximum rates and amounts per currency supporting lending.
+      security: []
+      responses:
+        "200":
+          description: Successfully retrieved loan information
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "../components/schemas.yaml#/components/schemas/LoanInfo"
+              example:
+                - lendingSupported: true
+                  shortName: ZAR
+                  minimumRate: "0.00000685"
+                  maximumRate: "0.00036"
+                  minimumAmount: "500"
+                  maximumAmount: "100000000"
+                - lendingSupported: true
+                  shortName: BTC
+                  minimumRate: "0.0000005"
+                  maximumRate: "0.00036"
+                  minimumAmount: "0.008"
+                  maximumAmount: "1000"
+                - lendingSupported: true
+                  shortName: ETH
+                  minimumRate: "0.0000005"
+                  maximumRate: "0.00036"
+                  minimumAmount: "0.01"
+                  maximumAmount: "20000"
+                - lendingSupported: true
+                  shortName: TRX
+                  minimumRate: "0.0000045"
+                  maximumRate: "0.00036"
+                  minimumAmount: "90"
+                  maximumAmount: "200000000"
+                - lendingSupported: false
+                  shortName: LTC
+                  minimumRate: "0"
+                  minimumAmount: "0"
+                - lendingSupported: false
+                  shortName: PYUSD
+                  minimumRate: "0"
+                  minimumAmount: "0"
+                - lendingSupported: false
+                  shortName: PYTH
+                  minimumRate: "0"
+                  minimumAmount: "0"
+                - lendingSupported: false
+                  shortName: W
+                  minimumRate: "0"
+                  minimumAmount: "0"
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
+  /v1/public/{currencyPair}/markprice/buckets:
+    get:
+      summary: Mark Price Buckets for a currency pair
+      operationId: getMarkPriceBuckets
+      tags:
+        - Public
+      description: >
+        Get the mark price buckets for a given currency pair.
+
+        We only support 100 buckets for a given bucket period. This means you can't specify a startTime and endTime that will contain more buckets than our supported max.
+      security: []
+      parameters:
+        - name: currencyPair
+          in: path
+          required: true
+          description: >
+            Specify the currency pair for which you want to query the mark price buckets. Examples: BTCUSDC, ETHUSDC, XRPUSDC, ADABTC, ADAETH etc.
+          schema:
+            type: string
+          example: BTCUSDT
+        - name: periodSeconds
+          in: query
+          required: false
+          description: Bucket period in seconds. Default is 60, Max 86400
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 86400
+            default: 60
+          example: 60
+        - name: startTime
+          in: query
+          required: false
+          description: Start time in ISO 8601 format. Default is endTime minus max allowed buckets
+          schema:
+            type: string
+            format: date-time
+          example: "2025-07-21T08:51:21.604113Z"
+        - name: endTime
+          in: query
+          required: false
+          description: End time in ISO 8601 format. Default is the current time
+          schema:
+            type: string
+            format: date-time
+          example: "2025-07-21T10:21:21.604113Z"
+      responses:
+        "200":
+          description: Successfully retrieved mark price buckets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "../components/schemas.yaml#/components/schemas/MarkPriceBucket"
+              example:
+                - currencyPairSymbol: BTCUSDT
+                  bucketPeriodInSeconds: 60
+                  startTime: "2025-07-16T11:39:00Z"
+                  open: "118834"
+                  close: "118834"
+                  high: "118834"
+                  low: "118834"
+                - currencyPairSymbol: BTCUSDT
+                  bucketPeriodInSeconds: 60
+                  startTime: "2025-07-16T11:38:00Z"
+                  open: "118821"
+                  close: "118821"
+                  high: "118821"
+                  low: "118821"
+                - currencyPairSymbol: BTCUSDT
+                  bucketPeriodInSeconds: 60
+                  startTime: "2025-07-16T11:37:00Z"
+                  open: "118827"
+                  close: "118827"
+                  high: "118827"
+                  low: "118827"
+                - currencyPairSymbol: BTCUSDT
+                  bucketPeriodInSeconds: 60
+                  startTime: "2025-07-16T11:36:00Z"
+                  open: "118845"
+                  close: "118845"
+                  high: "118845"
+                  low: "118845"
+                - currencyPairSymbol: BTCUSDT
+                  bucketPeriodInSeconds: 60
+                  startTime: "2025-07-16T11:35:00Z"
+                  open: "118827"
+                  close: "118827"
+                  high: "118827"
+                  low: "118827"
+                - currencyPairSymbol: BTCUSDT
+                  bucketPeriodInSeconds: 60
+                  startTime: "2025-07-16T11:34:00Z"
+                  open: "118849"
+                  close: "118849"
+                  high: "118849"
+                  low: "118849"
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
+  /v1/public/marketsummary:
+    get:
+      summary: Market Summary
+      operationId: getMarketSummary
+      tags:
+        - Public
+      description: >
+        Get the market summary for all supported currency pairs.
+
+        markPrice: A reference price for a trading pair calculated as the median of last traded, best bid and best ask.
+      security: []
+      responses:
+        "200":
+          description: Successfully retrieved market summary
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "../components/schemas.yaml#/components/schemas/MarketSummary"
+              example:
+                - currencyPair: BTCUSDTPERP
+                  askPrice: "105656"
+                  bidPrice: "105594"
+                  lastTradedPrice: "105611"
+                  previousClosePrice: "106678"
+                  baseVolume: "1.0638"
+                  quoteVolume: "113947.8777"
+                  highPrice: "108840"
+                  lowPrice: "105600"
+                  created: "2025-06-17T12:34:32.069Z"
+                  changeFromPrevious: "-1"
+                  markPrice: "105628"
+                - currencyPair: BATUSDC
+                  askPrice: "0.12481"
+                  bidPrice: "0.12457"
+                  lastTradedPrice: "0.12471"
+                  previousClosePrice: "0.1292"
+                  baseVolume: "0"
+                  quoteVolume: "0"
+                  highPrice: "0.131"
+                  lowPrice: "0.12432"
+                  created: "2025-06-17T12:32:22.079Z"
+                  changeFromPrevious: "-3.47"
+                  markPrice: "0"
+                - currencyPair: ALGOUSDC
+                  askPrice: "0.1731"
+                  bidPrice: "0.1729"
+                  lastTradedPrice: "0.173"
+                  previousClosePrice: "0.1812"
+                  baseVolume: "0"
+                  quoteVolume: "0"
+                  highPrice: "0.1865"
+                  lowPrice: "0.1718"
+                  created: "2025-06-17T12:34:25.703Z"
+                  changeFromPrevious: "-4.52"
+                  markPrice: "0"
+                - currencyPair: SHIBUSDC
+                  askPrice: "0"
+                  bidPrice: "0"
+                  lastTradedPrice: "0.00002178"
+                  previousClosePrice: "0.00002178"
+                  baseVolume: "0"
+                  quoteVolume: "0"
+                  highPrice: "0.00002178"
+                  lowPrice: "0"
+                  created: "2025-06-17T12:34:05Z"
+                  changeFromPrevious: "0"
+                  markPrice: "0.00001176"
+                - currencyPair: ZROUSDT
+                  askPrice: "2.016"
+                  bidPrice: "2.015"
+                  lastTradedPrice: "1.947"
+                  previousClosePrice: "1.947"
+                  baseVolume: "0"
+                  quoteVolume: "0"
+                  highPrice: "1.947"
+                  lowPrice: "0"
+                  created: "2025-06-17T12:34:05Z"
+                  changeFromPrevious: "0"
+                  markPrice: "1.878"
+                - currencyPair: USDTUSDC
+                  askPrice: "1.00046"
+                  bidPrice: "1.00033"
+                  lastTradedPrice: "1.00037"
+                  previousClosePrice: "1.00026"
+                  baseVolume: "757540.1433"
+                  quoteVolume: "757913.592959302"
+                  highPrice: "1.00066"
+                  lowPrice: "1.00023"
+                  created: "2025-06-17T12:34:32.049Z"
+                  changeFromPrevious: "0.01"
+                  markPrice: "1.0003"
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
+  /v1/public/{currencyPair}/marketsummary:
+    get:
+      summary: Market Summary for a currency pair
+      operationId: getMarketSummaryForCurrencyPair
+      tags:
+        - Public
+      description: Get the market summary for a given currency pair.
+      security: []
+      parameters:
+        - name: currencyPair
+          in: path
+          required: true
+          description: >
+            Specify the currency pair for which you want to query the market summary. Examples: BTCUSDC, ETHUSDC, XRPUSDC, ETHZAR, ADABTC, ADAETH etc.
+          schema:
+            type: string
+          example: BTCUSDC
+      responses:
+        "200":
+          description: Successfully retrieved market summary for currency pair
+          content:
+            application/json:
+              schema:
+                $ref: "../components/schemas.yaml#/components/schemas/MarketSummary"
+              example:
+                currencyPair: BTCUSDT
+                askPrice: "93129"
+                bidPrice: "81400"
+                lastTradedPrice: "93129"
+                previousClosePrice: "93129"
+                baseVolume: "0"
+                quoteVolume: "0"
+                highPrice: "93129"
+                lowPrice: "0"
+                created: "2025-07-17T07:37:05.061Z"
+                changeFromPrevious: "0"
+                markPrice: "118156"
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
+  /v1/public/{currencyPair}/trades:
+    get:
+      summary: Trade History
+      operationId: getTradeHistory
+      tags:
+        - Public
+      description: >
+        Get the trade history for a given currency pair. The results of this request may be filtered by datetime. The skip and limit parameters may be applied to paginate the filtered results.
+
+        Trade history may also be paginated by supplying a trade ID in the beforeId parameter. Only trades which occurred before the given ID will be included in the result. This allows backwards traversal of trade history by increments of limit. To apply this method of pagination, use the last trade ID from the previous result set as the beforeId parameter of the next request. limit and other filters can be applied with beforeId.
+
+        **Filtering by startTime or endTime**
+
+        The startTime or endTime parameters may be used to filter the returned items by the trade date. The parameters will be interpreted as being in the UTC time zone and must be supplied in the ISO 8601 format (2020-02-29T22:00:00.000Z). These two parameters may be used together or separately. When startTime is used, trades that have occurred since startTime are returned. When endTime is used, trades that have occurred up to and including endTime are returned.
+
+        NOTE: The startTime and endTime parameters are optional filters. However, omitting these parameters may result in slower response times. To mitigate this, a default time window such as the most recent 30 days may be automatically applied to the request.
+
+        Please note: This is not an authenticated call. More constrained rate-limiting rules will apply than when you use /marketdata/:currencyPair/tradehistory route.
+      security: []
+      parameters:
+        - name: currencyPair
+          in: path
+          required: true
+          description: Specify the currency pair for which you want to query the trade history.
+          schema:
+            type: string
+          example: BTCUSDT
+        - name: skip
+          in: query
+          required: false
+          description: Skip number of items from the list
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          example: 0
+        - name: limit
+          in: query
+          required: false
+          description: >
+            Limit the number of items returned. Max: 100
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          example: 10
+        - name: beforeId
+          in: query
+          required: false
+          description: Only include trades before this ID. Use the last trade ID from the previous result set as the beforeId parameter of the next request for pagination.
+          schema:
+            type: string
+          example: "35f07b86-d788-43e2-96f0-9e5a7b9b56d0"
+        - name: startTime
+          in: query
+          required: false
+          description: Include only trades after this ISO 8601 start time
+          schema:
+            type: string
+            format: date-time
+          example: "2025-01-01T08:51:21.604113Z"
+        - name: endTime
+          in: query
+          required: false
+          description: Include only trades before this ISO 8601 end time
+          schema:
+            type: string
+            format: date-time
+          example: "2025-07-01T08:55:29.339000Z"
+      responses:
+        "200":
+          description: Successfully retrieved trade history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "../components/schemas.yaml#/components/schemas/Trade"
+              example:
+                - price: "93129"
+                  quantity: "0.00119363"
+                  currencyPair: BTCUSDT
+                  tradedAt: "2025-07-15T12:19:21.501Z"
+                  takerSide: buy
+                  sequenceId: 1368928567986638800
+                  id: "01980e06-771d-73f1-aec8-b2fe69d943f1"
+                  quoteVolume: "111.16156827"
+                - price: "93129"
+                  quantity: "0.0004428"
+                  currencyPair: BTCUSDT
+                  tradedAt: "2025-07-14T05:22:52.344Z"
+                  takerSide: buy
+                  sequenceId: 1368928567986638800
+                  id: "01980762-cd38-719d-b7ea-d75c1872719d"
+                  quoteVolume: "41.2375212"
+                - price: "93129"
+                  quantity: "0.00025957"
+                  currencyPair: BTCUSDT
+                  tradedAt: "2025-07-13T12:53:11.924Z"
+                  takerSide: buy
+                  sequenceId: 1368928567986638800
+                  id: "019803d8-ba74-7e30-94e5-750c88ed6e30"
+                  quoteVolume: "24.17349453"
+                - price: "93129"
+                  quantity: "0.00000637"
+                  currencyPair: BTCUSDT
+                  tradedAt: "2025-07-07T09:59:54.743Z"
+                  takerSide: buy
+                  sequenceId: 1368928567986638600
+                  id: "0197e453-ec77-74aa-aece-7c437b42f4aa"
+                  quoteVolume: "0.59323173"
+                - price: "93129"
+                  quantity: "0.00003763"
+                  currencyPair: BTCUSDT
+                  tradedAt: "2025-07-07T09:59:49.731Z"
+                  takerSide: buy
+                  sequenceId: 1368928567986638600
+                  id: "0197e453-d8e3-7fb7-a8a8-2cd0c16b7fb7"
+                  quoteVolume: "3.50444427"
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
+  /v1/public/{currencyPair}/orderbook:
+    get:
+      summary: Order Book
+      operationId: getOrderBook
+      tags:
+        - Public
+      description: >
+        Returns a list of the top 40 bids and asks in the order book.
+        Ask orders are sorted by price ascending. Bid orders are sorted by price descending.
+        Orders of the same price are aggregated.
+
+        Please note: This is not an authenticated call. More constrained rate-limiting rules will apply than when you use the /marketdata/:currencyPair/orderbook route.
+      security: []
+      parameters:
+        - name: currencyPair
+          in: path
+          required: true
+          description: Currency pair for which you want to query the order book
+          schema:
+            type: string
+          example: BTCUSDC
+      responses:
+        "200":
+          description: Successfully retrieved order book
+          content:
+            application/json:
+              schema:
+                $ref: "../components/schemas.yaml#/components/schemas/OrderBook"
+              example:
+                Asks:
+                  - side: sell
+                    quantity: "0.01293134"
+                    price: "93129"
+                    currencyPair: BTCUSDT
+                    orderCount: 1
+                Bids:
+                  - side: buy
+                    quantity: "1.23136671"
+                    price: "81400"
+                    currencyPair: BTCUSDT
+                    orderCount: 17
+                LastChange: "2025-07-15T12:19:21.501Z"
+                SequenceNumber: 282886
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
+  /v1/public/{currencyPair}/orderbook/full:
+    get:
+      summary: Order Book (Non aggregated)
+      operationId: getOrderBookFull
+      tags:
+        - Public
+      description: >
+        Returns a list of all the bids and asks in the order book.
+        Ask orders are sorted by price ascending. Bid orders are sorted by price descending.
+        Orders of the same price are NOT aggregated. The LastChange field indicates the timestamp of the last update to the order book.
+
+        Please note: This is not an authenticated call. More constrained rate-limiting rules will apply than when you use the /marketdata/:currencyPair/orderbook/full route.
+      security: []
+      parameters:
+        - name: currencyPair
+          in: path
+          required: true
+          description: Currency pair for which you want to query the order book
+          schema:
+            type: string
+          example: BTCUSDC
+      responses:
+        "200":
+          description: Successfully retrieved full order book
+          content:
+            application/json:
+              schema:
+                $ref: "../components/schemas.yaml#/components/schemas/OrderBookFull"
+              example:
+                Asks:
+                  - side: sell
+                    quantity: "0.01293134"
+                    price: "93129"
+                    currencyPair: BTCUSDT
+                    id: "01972611-7cd0-7866-a6f3-8bc8f9c4a55a"
+                    positionAtPrice: 1
+                  - side: sell
+                    quantity: "4.6422441"
+                    price: "95800"
+                    currencyPair: BTCUSDT
+                    id: "b240da7d-6408-41fc-aea6-30c0c7160760"
+                    positionAtPrice: 1
+                  - side: sell
+                    quantity: "0.01"
+                    price: "95800"
+                    currencyPair: BTCUSDT
+                    id: "01955ba4-5c64-781e-ad2f-2891b3032e36"
+                    positionAtPrice: 2
+                Bids:
+                  - side: buy
+                    quantity: "1.23117023"
+                    price: "81400"
+                    currencyPair: BTCUSDT
+                    id: "01966bf8-308b-7fb9-a6db-bf2d6122f08b"
+                    positionAtPrice: 1
+                  - side: buy
+                    quantity: "0.00001228"
+                    price: "81400"
+                    currencyPair: BTCUSDT
+                    id: "0197f31a-7db7-7e5b-89c5-65337989465f"
+                    positionAtPrice: 2
+                  - side: buy
+                    quantity: "0.05000000"
+                    price: "81399"
+                    currencyPair: BTCUSDT
+                    id: "0197f31a-8437-7213-8a0b-30486a149648"
+                    positionAtPrice: 1
+                LastChange: "2025-07-15T12:19:21.501Z"
+                SequenceNumber: 282886
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
+  /v1/public/ordertypes:
+    get:
+      summary: Order Types
+      operationId: getOrderTypes
+      tags:
+        - Public
+      description: >
+        Get all the order types supported for all currency pairs.
+
+        An array of currency pairs is returned along with an array of order types for each currency pair.
+        You can only place an order that is supported by that currency pair.
+
+        The order types supported are as follows:
+
+        - **limit post-only** - Place a limit order on the Exchange that will either be added to the order book or, should it match, be cancelled completely.
+        - **limit** - Place a limit order on the Exchange.
+        - **market** - Place a market order on the Exchange (only crypto-to-ZAR pairs).
+        - **simple** - Similar to a market order, but allows for crypto-to-crypto pairs.
+        - **stop-loss limit** - Place a limit order on the Exchange that limits the downside of holding a particular asset.
+        - **take-profit limit** - Place a limit order on the Exchange to lock in the growth of holding a particular asset.
+      security: []
+      parameters:
+        - name: includeInactivePairs
+          in: query
+          required: false
+          description: Include inactive currency pairs in the response
+          schema:
+            type: boolean
+            default: true
+          example: false
+      responses:
+        "200":
+          description: Successfully retrieved order types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "../components/schemas.yaml#/components/schemas/CurrencyPairOrderTypes"
+              example:
+                - currencyPair: ETHZAR
+                  orderTypes:
+                    - LIMIT_POST_ONLY
+                    - LIMIT
+                    - MARKET
+                    - SIMPLE
+                    - STOP_LOSS_LIMIT
+                    - TAKE_PROFIT_LIMIT
+                - currencyPair: LTCBTC
+                  orderTypes: []
+                - currencyPair: LTCETH
+                  orderTypes: []
+                - currencyPair: BNTUSDC
+                  orderTypes:
+                    - SIMPLE
+                - currencyPair: DAIUSDC
+                  orderTypes:
+                    - SIMPLE
+                - currencyPair: BTCUSDTPERP
+                  orderTypes:
+                    - LIMIT_POST_ONLY
+                    - LIMIT
+                    - LIMIT_REDUCE_ONLY
+                    - MARKET_REDUCE_ONLY
+                    - MARKET
+                - currencyPair: PYUSDUSDT
+                  orderTypes:
+                    - LIMIT_POST_ONLY
+                    - SIMPLE
+                    - LIMIT
+                    - MARKET
+                - currencyPair: PYUSDZAR
+                  orderTypes:
+                    - LIMIT_POST_ONLY
+                    - LIMIT
+                    - SIMPLE
+                    - MARKET
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
+  /v1/public/{currencyPair}/ordertypes:
+    get:
+      summary: Order Types for a currency pair
+      operationId: getOrderTypesForCurrencyPair
+      tags:
+        - Public
+      description: >
+        Get the order types supported for a given currency pair.
+
+        An array of order types is returned. You can only place an order that is listed in this array for this currency pair.
+
+        The order types supported are as follows:
+
+        - **limit post-only** - Place a limit order on the Exchange that will either be added to the order book or, should it match, be cancelled completely.
+        - **limit** - Place a limit order on the Exchange.
+        - **market** - Place a market order on the Exchange.
+        - **simple** - Similar to a market order, but allows for crypto-to-crypto pairs.
+        - **stop-loss limit** - Place a limit order on the Exchange that limits the downside of holding a particular asset.
+        - **take-profit limit** - Place a limit order on the Exchange to lock in the growth of holding a particular asset.
+      security: []
+      parameters:
+        - name: currencyPair
+          in: path
+          required: true
+          description: >
+            Specify the currency pair for which you want to query the order types. Examples: BTCUSDC, BTCUSDT, XRPUSDC, SOLUSDC, ADABTC, ADAETH etc.
+          schema:
+            type: string
+          example: BTCUSDC
+      responses:
+        "200":
+          description: Successfully retrieved order types for currency pair
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  enum:
+                    - LIMIT_POST_ONLY
+                    - LIMIT
+                    - MARKET
+                    - SIMPLE
+                    - STOP_LOSS_LIMIT
+                    - TAKE_PROFIT_LIMIT
+                    - LIMIT_REDUCE_ONLY
+                    - MARKET_REDUCE_ONLY
+              example:
+                - LIMIT_POST_ONLY
+                - MARKET
+                - LIMIT
+                - SIMPLE
+                - STOP_LOSS_LIMIT
+                - TAKE_PROFIT_LIMIT
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
+  /v1/public/{currencyPair}/buckets:
+    get:
+      summary: Price Buckets for a currency pair
+      operationId: getPriceBuckets
+      tags:
+        - Public
+      description: >
+        This API returns historical market data aggregated into time-based "buckets" or candles for a specified currency pair and bucket period.
+        Each bucket provides the open, high, low, close, and volume for the defined time interval.
+
+        If no trading activity occurred during a specific bucket period, the open, high, low, and close prices will be identical (likely reflecting the last traded price), and volume and quoteVolume will be zero.
+
+        Valid inputs for the periodsSeconds parameter are 60 (default) - 1 Minute, 300 - 5 Minutes, 900 - 15 Minutes, 1800 - 30 Minutes, 3600 - 1 Hour, 21600 - 6 Hours and 86400 - 1 Day (max)
+      security: []
+      parameters:
+        - name: currencyPair
+          in: path
+          required: true
+          description: >
+            Specify the currency pair for which you want to query the price buckets. Examples: BTCUSDC, ETHUSDC, XRPUSDC, ADABTC, ADAETH etc.
+          schema:
+            type: string
+          example: BTCUSDC
+        - name: periodSeconds
+          in: query
+          required: false
+          description: >
+            Bucket period in seconds. Valid values: 60 (default), 300, 900, 1800, 3600, 21600, 86400 (max)
+          schema:
+            type: integer
+            enum: [60, 300, 900, 1800, 3600, 21600, 86400]
+            default: 60
+          example: 60
+        - name: startTime
+          in: query
+          required: false
+          description: Start Time in Epoch Seconds
+          schema:
+            type: integer
+            format: int64
+          example: 1753102597
+        - name: endTime
+          in: query
+          required: false
+          description: End Time in Epoch Seconds
+          schema:
+            type: integer
+            format: int64
+          example: 1753188997
+        - name: skip
+          in: query
+          required: false
+          description: Skip number of items from the list, this allows for paging through the items
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          example: 0
+        - name: limit
+          in: query
+          required: false
+          description: >
+            Limit the number of items returned. Max: 300
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 300
+            default: 300
+          example: 300
+        - name: includeEmpty
+          in: query
+          required: false
+          description: Include empty buckets in the response
+          schema:
+            type: boolean
+            default: false
+          example: true
+      responses:
+        "200":
+          description: Successfully retrieved price buckets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "../components/schemas.yaml#/components/schemas/PriceBucket"
+              example:
+                - currencyPairSymbol: BTCUSDC
+                  bucketPeriodInSeconds: 60
+                  startTime: "2025-07-22T12:56:00Z"
+                  open: "119350"
+                  high: "119350"
+                  low: "119350"
+                  close: "119350"
+                  volume: "0"
+                  quoteVolume: "0"
+                - currencyPairSymbol: BTCUSDC
+                  bucketPeriodInSeconds: 60
+                  startTime: "2025-07-22T12:55:00Z"
+                  open: "119350"
+                  high: "119350"
+                  low: "119350"
+                  close: "119350"
+                  volume: "0"
+                  quoteVolume: "0"
+                - currencyPairSymbol: BTCUSDC
+                  bucketPeriodInSeconds: 60
+                  startTime: "2025-07-22T12:46:00Z"
+                  open: "119350"
+                  high: "119350"
+                  low: "119350"
+                  close: "119350"
+                  volume: "0.0051"
+                  quoteVolume: "608.685"
+                - currencyPairSymbol: BTCUSDC
+                  bucketPeriodInSeconds: 60
+                  startTime: "2025-07-22T11:30:00Z"
+                  open: "119092"
+                  high: "119092"
+                  low: "119082"
+                  close: "119082"
+                  volume: "0.01368986"
+                  quoteVolume: "1630.29991912"
         "400":
           $ref: "../components/schemas.yaml#/components/responses/BadRequest"
         "500":

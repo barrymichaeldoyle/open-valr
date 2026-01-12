@@ -8,6 +8,19 @@ components:
           description: VALR platform status
           enum: [online, read-only]
           example: online
+    ServerTime:
+      type: object
+      properties:
+        epochTime:
+          type: integer
+          format: int64
+          description: The server time in epoch seconds
+          example: 1750165361
+        time:
+          type: string
+          format: date-time
+          description: The server time in ISO 8601 format
+          example: "2025-06-17T13:02:41.280178906Z"
     ErrorResponse:
       type: object
       properties:
@@ -194,6 +207,367 @@ components:
           type: string
           description: The auto-close margin fraction (present for FUTURE pairs and SPOT pairs with margin trading)
           example: "0.033333333"
+    FundingRateHistory:
+      type: object
+      properties:
+        currencyPair:
+          type: string
+          description: The name of the perpetual futures contract expressed as base, quote, PERP, e.g. BTCUSDTPERP
+          example: BTCUSDTPERP
+        fundingRate:
+          type: string
+          description: >
+            The funding rate that was used for the reported funding period.
+            If the rate is positive, longs paid shorts. Alternatively, if the rate is negative, shorts paid longs.
+          example: "0.000277"
+        fundingTime:
+          type: string
+          format: date-time
+          description: The date and time of the funding run in ISO 8601 format
+          example: "2025-07-16T11:00:00Z"
+    FuturesInfo:
+      type: object
+      properties:
+        currencyPair:
+          type: string
+          description: The name of the perpetual futures contract expressed as base, quote, PERP, e.g. BTCUSDTPERP
+          example: BTCUSDTPERP
+        estimatedFundingRate:
+          type: string
+          description: The estimated funding rate for the futures pair. If the rate is positive, longs pay shorts. Alternatively, if the rate is negative, shorts pay longs.
+          example: "-0.000001"
+        openInterest:
+          type: string
+          description: The open interest for the futures pair
+          example: "1.8401"
+        nextFundingRun:
+          type: integer
+          format: int64
+          description: The timestamp (in milliseconds) of the next funding run
+          example: 1750165200000
+        nextPnlRun:
+          type: integer
+          format: int64
+          description: The timestamp (in milliseconds) of the next PnL run
+          example: 1750176000000
+    LoanInfo:
+      type: object
+      properties:
+        lendingSupported:
+          type: boolean
+          description: Whether lending is supported for this currency
+          example: true
+        shortName:
+          type: string
+          description: The short name of the currency
+          example: ZAR
+        minimumRate:
+          type: string
+          description: The minimum lending rate for this currency
+          example: "0.00000685"
+        maximumRate:
+          type: string
+          description: The maximum lending rate for this currency (only present when lendingSupported is true)
+          example: "0.00036"
+        minimumAmount:
+          type: string
+          description: The minimum lending amount for this currency
+          example: "500"
+        maximumAmount:
+          type: string
+          description: The maximum lending amount for this currency (only present when lendingSupported is true)
+          example: "100000000"
+      required:
+        - lendingSupported
+        - shortName
+        - minimumRate
+        - minimumAmount
+    MarkPriceBucket:
+      type: object
+      properties:
+        currencyPairSymbol:
+          type: string
+          description: The currency pair symbol
+          example: BTCUSDT
+        bucketPeriodInSeconds:
+          type: integer
+          description: The bucket period in seconds
+          example: 60
+        startTime:
+          type: string
+          format: date-time
+          description: The start time of the bucket in ISO 8601 format
+          example: "2025-07-16T11:39:00Z"
+        open:
+          type: string
+          description: The opening mark price for the bucket
+          example: "118834"
+        close:
+          type: string
+          description: The closing mark price for the bucket
+          example: "118834"
+        high:
+          type: string
+          description: The highest mark price for the bucket
+          example: "118834"
+        low:
+          type: string
+          description: The lowest mark price for the bucket
+          example: "118834"
+    PriceBucket:
+      type: object
+      properties:
+        currencyPairSymbol:
+          type: string
+          description: The currency pair symbol
+          example: BTCUSDC
+        bucketPeriodInSeconds:
+          type: integer
+          description: The bucket period in seconds
+          example: 60
+        startTime:
+          type: string
+          format: date-time
+          description: The start time of the bucket in ISO 8601 format
+          example: "2025-07-22T12:56:00Z"
+        open:
+          type: string
+          description: The opening price for the bucket
+          example: "119350"
+        high:
+          type: string
+          description: The highest price for the bucket
+          example: "119350"
+        low:
+          type: string
+          description: The lowest price for the bucket
+          example: "119350"
+        close:
+          type: string
+          description: The closing price for the bucket
+          example: "119350"
+        volume:
+          type: string
+          description: The volume in the base currency for the bucket
+          example: "0"
+        quoteVolume:
+          type: string
+          description: The volume in the quote currency for the bucket
+          example: "0"
+    MarketSummary:
+      type: object
+      properties:
+        currencyPair:
+          type: string
+          description: The currency pair symbol
+          example: BTCUSDTPERP
+        askPrice:
+          type: string
+          description: The current ask price
+          example: "105656"
+        bidPrice:
+          type: string
+          description: The current bid price
+          example: "105594"
+        lastTradedPrice:
+          type: string
+          description: The last traded price
+          example: "105611"
+        previousClosePrice:
+          type: string
+          description: The previous close price
+          example: "106678"
+        baseVolume:
+          type: string
+          description: The volume in the base currency
+          example: "1.0638"
+        quoteVolume:
+          type: string
+          description: The volume in the quote currency
+          example: "113947.8777"
+        highPrice:
+          type: string
+          description: The highest price for the period
+          example: "108840"
+        lowPrice:
+          type: string
+          description: The lowest price for the period
+          example: "105600"
+        created:
+          type: string
+          format: date-time
+          description: The timestamp when this summary was created
+          example: "2025-06-17T12:34:32.069Z"
+        changeFromPrevious:
+          type: string
+          description: The percentage change from the previous close price
+          example: "-1"
+        markPrice:
+          type: string
+          description: A reference price for a trading pair calculated as the median of last traded, best bid and best ask
+          example: "105628"
+    OrderBookEntry:
+      type: object
+      properties:
+        side:
+          type: string
+          description: The side of the order
+          enum: [buy, sell]
+          example: buy
+        quantity:
+          type: string
+          description: The quantity of the order
+          example: "1.23136671"
+        price:
+          type: string
+          description: The price of the order
+          example: "81400"
+        currencyPair:
+          type: string
+          description: The currency pair symbol
+          example: BTCUSDT
+        orderCount:
+          type: integer
+          description: The number of orders aggregated at this price level
+          example: 17
+    Trade:
+      type: object
+      properties:
+        price:
+          type: string
+          description: The price at which the trade was executed
+          example: "93129"
+        quantity:
+          type: string
+          description: The quantity traded
+          example: "0.00119363"
+        currencyPair:
+          type: string
+          description: The currency pair symbol
+          example: BTCUSDT
+        tradedAt:
+          type: string
+          format: date-time
+          description: The timestamp when the trade was executed
+          example: "2025-07-15T12:19:21.501Z"
+        takerSide:
+          type: string
+          description: The side of the taker order
+          enum: [buy, sell]
+          example: buy
+        sequenceId:
+          type: integer
+          format: int64
+          description: The sequence ID of the trade
+          example: 1368928567986638800
+        id:
+          type: string
+          description: The unique identifier of the trade
+          example: "01980e06-771d-73f1-aec8-b2fe69d943f1"
+        quoteVolume:
+          type: string
+          description: The volume in the quote currency
+          example: "111.16156827"
+    OrderBook:
+      type: object
+      properties:
+        Asks:
+          type: array
+          description: List of ask orders, sorted by price ascending
+          items:
+            $ref: "#/components/schemas/OrderBookEntry"
+        Bids:
+          type: array
+          description: List of bid orders, sorted by price descending
+          items:
+            $ref: "#/components/schemas/OrderBookEntry"
+        LastChange:
+          type: string
+          format: date-time
+          description: The timestamp of the last change to the order book
+          example: "2025-07-15T12:19:21.501Z"
+        SequenceNumber:
+          type: integer
+          description: The sequence number of the order book
+          example: 282886
+    OrderBookFullEntry:
+      type: object
+      properties:
+        side:
+          type: string
+          description: The side of the order
+          enum: [buy, sell]
+          example: buy
+        quantity:
+          type: string
+          description: The quantity of the order
+          example: "1.23117023"
+        price:
+          type: string
+          description: The price of the order
+          example: "81400"
+        currencyPair:
+          type: string
+          description: The currency pair symbol
+          example: BTCUSDT
+        id:
+          type: string
+          description: The unique identifier of the order
+          example: "01966bf8-308b-7fb9-a6db-bf2d6122f08b"
+        positionAtPrice:
+          type: integer
+          description: The position of this order at this price level (orders at the same price are not aggregated)
+          example: 1
+    OrderBookFull:
+      type: object
+      properties:
+        Asks:
+          type: array
+          description: List of ask orders, sorted by price ascending. Orders of the same price are NOT aggregated.
+          items:
+            $ref: "#/components/schemas/OrderBookFullEntry"
+        Bids:
+          type: array
+          description: List of bid orders, sorted by price descending. Orders of the same price are NOT aggregated.
+          items:
+            $ref: "#/components/schemas/OrderBookFullEntry"
+        LastChange:
+          type: string
+          format: date-time
+          description: The timestamp of the last change to the order book
+          example: "2025-07-15T12:19:21.501Z"
+        SequenceNumber:
+          type: integer
+          description: The sequence number of the order book
+          example: 282886
+    CurrencyPairOrderTypes:
+      type: object
+      properties:
+        currencyPair:
+          type: string
+          description: The currency pair symbol
+          example: ETHZAR
+        orderTypes:
+          type: array
+          description: Array of order types supported for this currency pair
+          items:
+            type: string
+            enum:
+              - LIMIT_POST_ONLY
+              - LIMIT
+              - MARKET
+              - SIMPLE
+              - STOP_LOSS_LIMIT
+              - TAKE_PROFIT_LIMIT
+              - LIMIT_REDUCE_ONLY
+              - MARKET_REDUCE_ONLY
+          example:
+            - LIMIT_POST_ONLY
+            - LIMIT
+            - MARKET
+            - SIMPLE
+            - STOP_LOSS_LIMIT
+            - TAKE_PROFIT_LIMIT
   responses:
     BadRequest:
       description: Bad request
