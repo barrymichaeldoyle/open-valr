@@ -28,6 +28,10 @@ paths:
     $ref: "./paths/public.yaml#/paths/~1v1~1public~1risklimit~1{currencypair}"
   /v1/public/status: # VALR Status
     $ref: "./paths/public.yaml#/paths/~1v1~1public~1status"
+  /v1/public/currencies: # Currencies
+    $ref: "./paths/public.yaml#/paths/~1v1~1public~1currencies"
+  /v1/public/pairs: # Currency Pairs
+    $ref: "./paths/public.yaml#/paths/~1v1~1public~1pairs"
 
 components:
   schemas:
@@ -37,6 +41,12 @@ components:
       $ref: "./components/schemas.yaml#/components/schemas/ErrorResponse"
     LeverageOption:
       $ref: "./components/schemas.yaml#/components/schemas/LeverageOption"
+    Currency:
+      $ref: "./components/schemas.yaml#/components/schemas/Currency"
+    SupportedNetwork:
+      $ref: "./components/schemas.yaml#/components/schemas/SupportedNetwork"
+    CurrencyPair:
+      $ref: "./components/schemas.yaml#/components/schemas/CurrencyPair"
   responses:
     BadRequest:
       $ref: "./components/schemas.yaml#/components/responses/BadRequest"

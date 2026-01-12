@@ -69,3 +69,136 @@ paths:
           $ref: "../components/schemas.yaml#/components/responses/ServiceUnavailable"
         "500":
           $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
+  /v1/public/currencies:
+    get:
+      summary: Currencies
+      operationId: getCurrencies
+      tags:
+        - Public
+      description: >
+        Get a list of currencies supported by VALR.
+
+        A currency may optionally expose:
+
+        - **defaultNetworkType** - the network type identifier that will be used if a network type is not specified on a deposit request or a withdrawal request via the API.
+
+        - **supportedNetworks** - a list of networks that are available to use for deposits and/or withdrawals for a given currency.
+
+        **NOTE:**
+
+        If a currency does not expose any supported networks, it means that both withdrawals and deposits are not available for the specified currency on VALR.
+
+        If a currency does expose supported networks, either both withdrawals and deposits are available, or one of withdrawals or deposits is not available for that network. This can be queried using the deposit and withdraw properties on each network in supportedNetworks.
+      security: []
+      responses:
+        "200":
+          description: Successfully retrieved list of currencies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "../components/schemas.yaml#/components/schemas/Currency"
+              examples:
+                withNetworks:
+                  summary: Currency with supported networks
+                  value:
+                    - symbol: USDT
+                      isActive: true
+                      shortName: USDT
+                      longName: Tether
+                      decimalPlaces: "2"
+                      withdrawalDecimalPlaces: "2"
+                      collateral: true
+                      collateralWeight: "0.99"
+                      defaultNetworkType: Ethereum
+                      supportedNetworks:
+                        - networkType: Ethereum
+                          networkLongName: Ethereum
+                          tokenContract: "0xdac17f958d2ee523a2206206994597c13d831ec7"
+                          deposit: true
+                          withdraw: true
+                withoutNetworks:
+                  summary: Currency without supported networks
+                  value:
+                    - symbol: PAY
+                      isActive: false
+                      shortName: PAY
+                      longName: TenX Pay Token
+                      decimalPlaces: "18"
+                      withdrawalDecimalPlaces: "8"
+                      collateral: false
+                      collateralWeight: "0.0"
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"
+
+  /v1/public/pairs:
+    get:
+      summary: Currency Pairs
+      operationId: getCurrencyPairs
+      tags:
+        - Public
+      description: Get a list of all the currency pairs supported by VALR.
+      security: []
+      responses:
+        "200":
+          description: Successfully retrieved list of currency pairs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "../components/schemas.yaml#/components/schemas/CurrencyPair"
+              example:
+                - symbol: ETHZAR
+                  baseCurrency: ETH
+                  quoteCurrency: ZAR
+                  shortName: ETH/ZAR
+                  active: true
+                  minBaseAmount: "0.0002"
+                  maxBaseAmount: "69.21"
+                  minQuoteAmount: "10"
+                  maxQuoteAmount: "5000000"
+                  tickSize: "1"
+                  baseDecimalPlaces: "8"
+                  marginTradingAllowed: true
+                  currencyPairType: SPOT
+                  initialMarginFraction: "0.2"
+                  maintenanceMarginFraction: "0.1"
+                  autoCloseMarginFraction: "0.033333333"
+                - symbol: BNBUSDC
+                  baseCurrency: BNB
+                  quoteCurrency: USDC
+                  shortName: BNB/USDC
+                  active: true
+                  minBaseAmount: "0.0008"
+                  maxBaseAmount: "80"
+                  minQuoteAmount: "0.52"
+                  maxQuoteAmount: "52000"
+                  tickSize: "0.1"
+                  baseDecimalPlaces: "4"
+                  marginTradingAllowed: false
+                  currencyPairType: SPOT
+                - symbol: ETHUSDTPERP
+                  baseCurrency: ETH
+                  quoteCurrency: USDT
+                  shortName: ETH/USDTPERP
+                  active: true
+                  minBaseAmount: "0.001"
+                  maxBaseAmount: "32"
+                  minQuoteAmount: "1"
+                  maxQuoteAmount: "100000"
+                  tickSize: "0.1"
+                  baseDecimalPlaces: "3"
+                  marginTradingAllowed: false
+                  currencyPairType: FUTURE
+                  initialMarginFraction: "0.025"
+                  maintenanceMarginFraction: "0.0125"
+                  autoCloseMarginFraction: "0.0125"
+        "400":
+          $ref: "../components/schemas.yaml#/components/responses/BadRequest"
+        "500":
+          $ref: "../components/schemas.yaml#/components/responses/InternalServerError"

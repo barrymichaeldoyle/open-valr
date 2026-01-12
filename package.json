@@ -3,14 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "validate": "openapi validate openapi/valr.yaml",
+    "validate": "openapi lint openapi/valr.yaml --config .redocly.yaml",
     "preview": "openapi preview-docs openapi/valr.yaml",
     "swagger": "http-server openapi -p 8081",
     "proxy": "node tools/proxy.cjs",
     "dev": "concurrently \"pnpm run proxy\" \"pnpm run preview\" \"pnpm run swagger\""
   },
   "devDependencies": {
-    "@redocly/openapi-cli": "1.0.0-beta.95",
     "concurrently": "^9.2.1",
     "express": "^5.2.1",
     "http-proxy": "^1.18.1",

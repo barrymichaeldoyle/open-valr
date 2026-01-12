@@ -56,6 +56,144 @@ components:
           type: boolean
           description: When true this indicates that this leverage tier is the VALR default for this pair
           example: true
+    SupportedNetwork:
+      type: object
+      properties:
+        networkType:
+          type: string
+          description: The network type identifier
+          example: Ethereum
+        networkLongName:
+          type: string
+          description: The full name of the network
+          example: Ethereum
+        tokenContract:
+          type: string
+          description: The token contract address (only present for tokens on supported networks)
+          example: "0xdac17f958d2ee523a2206206994597c13d831ec7"
+        deposit:
+          type: boolean
+          description: Whether deposits are available on this network
+          example: true
+        withdraw:
+          type: boolean
+          description: Whether withdrawals are available on this network
+          example: true
+    Currency:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: The currency symbol
+          example: USDT
+        isActive:
+          type: boolean
+          description: Whether the currency is currently active
+          example: true
+        shortName:
+          type: string
+          description: The short name of the currency
+          example: USDT
+        longName:
+          type: string
+          description: The full name of the currency
+          example: Tether
+        decimalPlaces:
+          type: string
+          description: The number of decimal places for the currency
+          example: "2"
+        withdrawalDecimalPlaces:
+          type: string
+          description: The number of decimal places for withdrawals
+          example: "2"
+        collateral:
+          type: boolean
+          description: Whether the currency can be used as collateral
+          example: true
+        collateralWeight:
+          type: string
+          description: The collateral weight of the currency
+          example: "0.99"
+        defaultNetworkType:
+          type: string
+          description: The network type identifier that will be used if a network type is not specified on a deposit or withdrawal request
+          example: Ethereum
+        supportedNetworks:
+          type: array
+          description: >
+            A list of networks that are available to use for deposits and/or withdrawals for a given currency.
+            If this property is not present, it means that both withdrawals and deposits are not available
+            for the specified currency on VALR.
+          items:
+            $ref: "#/components/schemas/SupportedNetwork"
+    CurrencyPair:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: The currency pair symbol
+          example: ETHZAR
+        baseCurrency:
+          type: string
+          description: The base currency symbol
+          example: ETH
+        quoteCurrency:
+          type: string
+          description: The quote currency symbol
+          example: ZAR
+        shortName:
+          type: string
+          description: The short display name for the currency pair
+          example: ETH/ZAR
+        active:
+          type: boolean
+          description: Whether the currency pair is currently active for trading
+          example: true
+        minBaseAmount:
+          type: string
+          description: The minimum base currency amount for orders
+          example: "0.0002"
+        maxBaseAmount:
+          type: string
+          description: The maximum base currency amount for orders
+          example: "69.21"
+        minQuoteAmount:
+          type: string
+          description: The minimum quote currency amount for orders
+          example: "10"
+        maxQuoteAmount:
+          type: string
+          description: The maximum quote currency amount for orders
+          example: "5000000"
+        tickSize:
+          type: string
+          description: The minimum price increment (tick size) for the currency pair
+          example: "1"
+        baseDecimalPlaces:
+          type: string
+          description: The number of decimal places for the base currency
+          example: "8"
+        marginTradingAllowed:
+          type: boolean
+          description: Whether margin trading is allowed for this currency pair
+          example: true
+        currencyPairType:
+          type: string
+          description: The type of currency pair
+          enum: [SPOT, FUTURE]
+          example: SPOT
+        initialMarginFraction:
+          type: string
+          description: The initial margin fraction required (present for FUTURE pairs and SPOT pairs with margin trading)
+          example: "0.2"
+        maintenanceMarginFraction:
+          type: string
+          description: The maintenance margin fraction (present for FUTURE pairs and SPOT pairs with margin trading)
+          example: "0.1"
+        autoCloseMarginFraction:
+          type: string
+          description: The auto-close margin fraction (present for FUTURE pairs and SPOT pairs with margin trading)
+          example: "0.033333333"
   responses:
     BadRequest:
       description: Bad request
